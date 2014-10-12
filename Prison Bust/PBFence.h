@@ -10,5 +10,5 @@
 
 @interface PBFence : PBEnemy
 - (SKAction *)deathAnimation;
-
+- (void)breakFence;
 @end

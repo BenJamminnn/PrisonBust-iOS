@@ -8,28 +8,24 @@
 
 #import "PBMyScene.h"
 
-@class PBFence, PBMissle, PBSpikePit, PBPowerUp, PBPlayer;
+@class PBFence, PBMissle, PBSpikePit, PBPowerUp, PBPlayer, PBBomb;
 @interface PBMyScene (PBMyScene_Additions)
 
 - (PBMissle *)missileInstance;
 - (PBFence *)fenceInstance;
 - (PBSpikePit *)spikePitInstance;
+- (PBBomb *)bombInstance;
 
 - (PBPowerUp *)powerUpInstance;
 
 - (PBPlayer *)playerInstance;
+
 //on screen edge colliders
 - (SKNode *)bottomCollider;
-- (SKNode *)leftCollider;
-- (SKNode *)topCollider;
-
-
-- (SKSpriteNode *)deadBodyNodeAtPosition:(CGPoint)position;
 
 //exploding body parts
 - (void)loadPlayerExplosionSprites;
 - (SKAction *)explosionSpritesAtLocation:(CGPoint)location;
-
 
 //convenience
 + (NSString *)dateToString:(NSDate *)date;

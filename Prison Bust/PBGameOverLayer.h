@@ -9,7 +9,7 @@
 #import "PBHighScoreObject.h"
 #import "PBGameLayer.h"
 
-@interface PBGameOverLayer : PBGameLayer
+@interface PBGameOverLayer : SKScene
 @property (strong, nonatomic) PBHighScoreObject *playerScore;
 
 + (instancetype)gameOverLayerWithScore:(PBHighScoreObject *)playerScore;

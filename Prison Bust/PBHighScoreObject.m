@@ -39,29 +39,34 @@
 }
 
 - (NSString *)description {
-    
     return [NSString stringWithFormat:@" %1.0f               %@" , _score , _scoreDate];
 }
 
 - (NSString *)dateToString:(NSDate *)date {
-    NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
-    dateFormat.timeStyle = NSDateFormatterShortStyle;
-    dateFormat.dateStyle = NSDateFormatterShortStyle;
-    NSString *dateString = [dateFormat stringFromDate:date];
-    return dateString;
+    static NSDateFormatter *dateFormatter = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        dateFormatter = [[NSDateFormatter alloc] init];
+        dateFormatter.timeStyle = NSDateFormatterShortStyle;
+        dateFormatter.dateStyle = NSDateFormatterShortStyle;
+    });
+    
+    return  [dateFormatter stringFromDate:date];
 }
 
-+ (NSMutableArray *)compareHighScores:(NSArray *)unorderedArray {
++ (NSArray *)compareHighScores:(NSArray *)unorderedArray {
     if(unorderedArray.count < 2) {
         return [NSMutableArray arrayWithArray:unorderedArray];
     }
-    NSMutableArray *orderedArray = [NSMutableArray array];
+    
     NSSortDescriptor *scoreSortDescriptor = [[NSSortDescriptor alloc]initWithKey:@"score" ascending:NO];
     NSArray *sortDescriptor = [NSArray arrayWithObject:scoreSortDescriptor];
-    orderedArray = [NSMutableArray arrayWithArray:[unorderedArray sortedArrayUsingDescriptors:sortDescriptor]];
+    NSMutableArray *orderedArray = [[unorderedArray sortedArrayUsingDescriptors:sortDescriptor] mutableCopy];
+
     if(orderedArray.count > 5) {
         [orderedArray removeObjectAtIndex:orderedArray.count - 1];
     }
+    
     return orderedArray;
 }
 @end

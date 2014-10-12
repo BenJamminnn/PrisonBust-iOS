@@ -9,13 +9,12 @@
 #import <SpriteKit/SpriteKit.h>
 typedef NS_ENUM(NSInteger, enemyType) {
     enemyTypeFence,
-    enemyTypeGuard,
+    enemyTypeBomb,
     enemyTypeMissle,
-    enemyTypeDogs,
     enemyTypeSpikePit,
     enemyTypeDefault
 };
-@interface PBEnemy : SKSpriteNode
+@interface PBEnemy : SKSpriteNode <NSCopying>
 @property (nonatomic) enemyType enemyType;
 @property (nonatomic, strong) NSMutableArray *contactFrames;
 

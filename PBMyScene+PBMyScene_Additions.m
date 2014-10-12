@@ -11,14 +11,23 @@
 #import "PBMissle.h"
 #import "PBPlayer.h"
 #import "PBSpikePit.h"
+#import "PBBomb.h"
 #import "PBPowerUp.h"
 #import "PBPlayer.h"    
+
+
 @implementation PBMyScene (PBMyScene_Additions)
 #pragma mark - enemy instances for enumeration
 
+- (PBBomb *)bombInstance {
+    PBBomb *bomb = [PBBomb bomb];
+    bomb.position = CGPointMake(self.size.width + 100+ 700, 220);
+    return bomb;
+}
+
 - (PBFence *)fenceInstance {
     PBFence *newFence = [[PBFence alloc]init];
-    newFence.position = CGPointMake(self.size.width + 200, 218);
+    newFence.position = CGPointMake(self.size.width + 700, 218);
     newFence.xScale = .2;
     newFence.yScale = .25;
     newFence.hidden = NO;
@@ -30,20 +39,19 @@
 - (PBMissle *)missileInstance {
     PBMissle *newMissile = [[PBMissle alloc]init];
     newMissile.position = CGPointMake(self.size.width + 200, 245);
-    newMissile.zPosition = 4.0;
     return newMissile;
 }
 
 - (PBSpikePit *)spikePitInstance {
     PBSpikePit *spikePit = [PBSpikePit new];
-    spikePit.position = CGPointMake(self.size.width + 200, 210);
+    spikePit.position = CGPointMake(self.size.width + 200+ 700, 210);
     return spikePit;
 }
 
 - (PBPowerUp *)powerUpInstance {
     PBPowerUp *powerUp = [PBPowerUp powerUp];
     [powerUp floatPowerUp];
-    powerUp.position = CGPointMake(self.size.width + 200, 220);
+    powerUp.position = CGPointMake(self.size.width + 200+ 700, 220);
     powerUp.zPosition = 4;
     return powerUp;
 }
@@ -53,6 +61,7 @@
     player.position = CGPointMake(self.size.width/3.5, 230);
     return player;
 }
+
 #pragma mark - colliders on the edges
 
 - (SKNode *)bottomCollider {
@@ -60,26 +69,10 @@
     bottomCollider.position = CGPointMake(0, 0);
     bottomCollider.physicsBody = [SKPhysicsBody bodyWithEdgeFromPoint:CGPointMake(0, 210) toPoint:CGPointMake(self.size.width, 210)];
     bottomCollider.physicsBody.dynamic = YES;
+    bottomCollider.name = @"bottom collider";
     bottomCollider.physicsBody.categoryBitMask = groundBitMask;
     return bottomCollider;
 }
-
-- (SKNode *)leftCollider {
-    SKNode *leftSideCollider = [SKNode node];
-    leftSideCollider.position = CGPointMake(0, 0);
-    leftSideCollider.physicsBody = [SKPhysicsBody bodyWithEdgeFromPoint:CGPointMake(0, 0) toPoint:CGPointMake(0, self.size.height)];
-    leftSideCollider.physicsBody.categoryBitMask = groundBitMask;
-    return leftSideCollider;
-}
-
-- (SKNode *)topCollider {
-    SKNode *topCollider = [SKNode node];
-    topCollider.physicsBody = [SKPhysicsBody bodyWithEdgeFromPoint:CGPointMake(0, self.size.height) toPoint:CGPointMake(self.size.width, self.size.height)];
-    topCollider.physicsBody.categoryBitMask = groundBitMask;
-    topCollider.physicsBody.dynamic = YES;
-    return topCollider;
-}
-
 
 #pragma mark - death state convienience methods
 
@@ -90,32 +83,16 @@
             node.position = location;
             node.hidden = NO;
             node.physicsBody.affectedByGravity = YES;
-            node.physicsBody.allowsRotation = YES;
+            node.physicsBody.allowsRotation = NO;
+            node.physicsBody.mass = 1;
             [node runAction:[SKAction colorizeWithColor:[UIColor blackColor] colorBlendFactor:0.5 duration:6.0]];
-            int randX = (arc4random() % 100) - 50;
-            int randY = (arc4random() % 300);
+            int randX = (arc4random() % 150) - 50;
+            int randY = (arc4random() % 450);
             node.zPosition = 4;
             [node.physicsBody applyImpulse:CGVectorMake(randX, randY)];
-       //     [node runAction:[SKAction sequence:@[[SKAction waitForDuration:3.0] , [SKAction fadeOutWithDuration:1.0]]]];
         }];
     }];
     return action;
-}
-
-- (SKSpriteNode *)deadBodyNodeAtPosition:(CGPoint)position {
-    SKSpriteNode *deadBody = [PBPlayer deadPlayerSpriteNode];
-    deadBody.position = position;
-    deadBody.xScale = 0.3;
-    deadBody.yScale = 0.3;
-    deadBody.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:CGSizeMake(1, 3)];
-    deadBody.physicsBody.dynamic = YES;
-    deadBody.physicsBody.mass = 50;
-    deadBody.physicsBody.categoryBitMask = playerCategory;
-    deadBody.physicsBody.affectedByGravity = YES;
-    deadBody.physicsBody.restitution = 0.4;
-    [deadBody addChild:[self smokeEmitter]];
-    
-    return deadBody;
 }
 
 #pragma mark - smoke emitters for death states (rocket)
@@ -127,16 +104,26 @@
 }
 
 - (SKEmitterNode *)smokeForBodyParts {
-    SKEmitterNode *smokeEmitter = [NSKeyedUnarchiver unarchiveObjectWithFile:[[NSBundle mainBundle]pathForResource:@"smokeForBodyParts" ofType:@"sks"]];
+    SKEmitterNode *smokeEmitter = [self particleEmitterWithName:@"TEMP"];
     return smokeEmitter;
 }
 
-
+- (SKEmitterNode *)particleEmitterWithName:(NSString *)name {
+    NSString *path = [[NSBundle mainBundle]pathForResource:name ofType:@"sks"];
+    NSData *sceneData = [NSData dataWithContentsOfFile:path options:NSDataReadingMappedIfSafe error:nil];
+    NSKeyedUnarchiver *archiver = [[NSKeyedUnarchiver alloc]initForReadingWithData:sceneData];
+    [archiver setClass:[SKEmitterNode class] forClassName:@"SKEditorScene"];
+    id node = [archiver decodeObjectForKey:(NSKeyedArchiveRootObjectKey)];
+    [archiver finishDecoding];
+    return node;
+}
 
 - (void)loadPlayerExplosionSprites {
     for(int i = 1; i < 7; i++) {
         SKSpriteNode *node = [SKSpriteNode spriteNodeWithImageNamed:[NSString stringWithFormat:@"blown_up_%d" , i]];
         node.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:CGSizeMake(5, 5)];
+        node.physicsBody.categoryBitMask = nilBitMask;
+        node.physicsBody.collisionBitMask = groundBitMask;
         node.xScale = 0.2;
         node.yScale = 0.2;
         node.hidden = YES;
@@ -151,6 +138,7 @@
         [self addChild:node];
     }
 }
+
 + (NSString *)dateToString:(NSDate *)date {
     NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
     dateFormat.timeStyle = NSDateFormatterShortStyle;
@@ -158,7 +146,6 @@
     NSString *dateString = [dateFormat stringFromDate:date];
     return dateString;
 }
-
 
 #pragma mark - background music
 //#pragma mark - handling in-game music - change resource name

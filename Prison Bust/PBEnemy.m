@@ -17,7 +17,6 @@ static NSInteger enemyZPosition = 4;
        // self.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:self.frame.size];
         self.physicsBody.categoryBitMask = enemyCategory;
        // self.physicsBody.contactTestBitMask = playerCategory;
-        self.physicsBody.usesPreciseCollisionDetection = YES;
         self.enemyType = enemyTypeDefault;
         self.zPosition = enemyZPosition;
         self.physicsBody.allowsRotation = NO;

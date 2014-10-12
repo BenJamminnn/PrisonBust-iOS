@@ -11,6 +11,7 @@
 @interface PBHighScoreObject : NSObject <NSCoding>
 @property (nonatomic) double score;
 @property (nonatomic, strong) NSString *scoreDate;
+
 - (instancetype)scoreWithDate:(NSString *)date andScore:(int)score;
 + (NSMutableArray *)compareHighScores:(NSMutableArray *)unorderedArray; //returns sorted version of hso array
 

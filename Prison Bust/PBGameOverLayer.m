@@ -13,72 +13,25 @@
 #import "PBHighScoreObject.h"
 
 static NSString *sceneBackgroundImageName = @"prison_break_GAME_END_clean";
-static NSString *startGameButtonName = @"play_again";
-static NSString *mainMenuButtonName = @"main_menu";
+static NSString *startGameButtonName = @"play_again_v02";
+static NSString *mainMenuButtonName = @"main_menu_v02";
 static NSString *yourHighScoreLabelName = @"yourscore";
 static NSString *highestScoreLabelName = @"highscore";
+static NSString *highScoresButtonName = @"prison_break_highscores_v02";
 
 @interface PBGameOverLayer ()
 
 @property (strong, nonatomic) SKSpriteNode *playAgainButton;
 @property (strong, nonatomic) SKSpriteNode *mainMenuButton;
+@property (strong, nonatomic) SKSpriteNode *highScoresButton;
 
 @end
 
 @implementation PBGameOverLayer
 
-/*
+#pragma mark - lifeCycle
 
-*/
-
-- (id)initWithScore:(PBHighScoreObject *)playerScore {
-    if(self = [super init]) {
-        [self addButton:mainMenuButtonName atPosition:CGPointMake(0.84, 0.3) withScale:0.0009];
-        [self addButton:startGameButtonName atPosition:CGPointMake(0.15, 0.3) withScale:0.0009];
-        [self addChild:[self addButton:yourHighScoreLabelName atPosition:CGPointMake(0.23, 0.72) withScale:0.0009]];
-        [self addChild:[self addButton:highestScoreLabelName atPosition:CGPointMake(0.23, 0.65) withScale:0.0009]];
-        if(playerScore) {
-            self.playerScore = playerScore;
-            [self postNewHighScore];
-            [self addPlayerScoreNode];
-            [self displayHighestScore];
-        }
-    }
-    return self;
-}
-
-
-- (void)displayHighestScore {
-    PBHighScoresScene *highScoreRef = [PBHighScoresScene highScoresScene];
-    PBHighScoreObject *obj = [highScoreRef.highScores firstObject];
-    NSInteger highestScore = obj.score;
-    SKLabelNode *highestScoreLabel = [SKLabelNode labelNodeWithFontNamed:@"Verdana"];
-    highestScoreLabel.position = CGPointMake(self.size.width/2, self.size.height/1.6);
-    highestScoreLabel.zPosition = 50;
-    highestScoreLabel.text = [NSString stringWithFormat:@" %li" , (long)highestScore];
-    highestScoreLabel.fontColor = [SKColor colorWithRed:1 green:0.15 blue:0.3 alpha:1.0];
-    highestScoreLabel.fontSize = 30;
-    highestScoreLabel.hidden = NO;
-    highestScoreLabel.xScale = 0.002;
-    highestScoreLabel.yScale = 0.002;
-    highestScoreLabel.name = @"highestScoreLabel";
-    [self addChild:highestScoreLabel];
-}
-
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    //we will present a button to the user, sense if the button has been touched. if yes...
-    UITouch *touch = [touches anyObject];
-    CGPoint touchLocation = [touch locationInNode:self];
-    
-    if ([self.playAgainButton containsPoint:touchLocation]) {
-        NSLog(@"play again touched");
-        [self presentGamePlayScene];
-    } else if([self.mainMenuButton containsPoint:touchLocation]) {
-        NSLog(@"main menu touched");
-        [self presentMainMenu];
-    }
-}
-
+//designated initializer
 + (instancetype)gameOverLayerWithScore:(PBHighScoreObject *)playerScore {
     PBGameOverLayer *gameOverLayer = [[PBGameOverLayer alloc]initWithScore:playerScore];
     SKSpriteNode *backgroundImageNode = [PBGameOverLayer backgroundImage];
@@ -87,50 +40,50 @@ static NSString *highestScoreLabelName = @"highscore";
     return gameOverLayer;
 }
 
-+ (SKSpriteNode *)backgroundImage {
-    SKSpriteNode *backgroundImageNode = [[SKSpriteNode alloc]initWithImageNamed:sceneBackgroundImageName];
-    backgroundImageNode.xScale = 0.0009;
-    backgroundImageNode.yScale = 0.00085;
-    backgroundImageNode.name = @"backgroundImage";
-    return backgroundImageNode;
-}
-
-- (SKSpriteNode *)addButton:(NSString *)buttonName atPosition:(CGPoint)position withScale:(CGFloat)scale {
-    SKSpriteNode *button = [SKSpriteNode spriteNodeWithImageNamed:buttonName];
-    button.name = buttonName;
-    button.position = position;
-    button.zPosition = 8;
-    if(scale > 0) {
-        button.xScale = scale;
-        button.yScale = scale;
-    }
-    
-    NSLog(@"Button: %@ position: %@" , buttonName , NSStringFromCGPoint(button.position));
-    if([buttonName isEqualToString:startGameButtonName]) {
-        self.playAgainButton = button;
+- (id)initWithScore:(PBHighScoreObject *)playerScore {
+    if(self = [super init]) {
+        //adding buttons ---- need to be properties because we ref them in touchesBegan:
+        [self addChild:self.highScoresButton];
         [self addChild:self.playAgainButton];
-        return nil;
-    } else if([buttonName isEqualToString:mainMenuButtonName]) {
-        self.mainMenuButton = button;
-        [self addChild:button];
-        return nil;
+        [self addChild:self.mainMenuButton];
+        
+        //adding labels
+        [self addHighScoreLabels];
+        
+        if(playerScore) {
+            self.playerScore = playerScore;
+            [self postNewHighScore];
+            [self addPlayerScoreNode];
+            [self displayHighestScore];
+        } else {
+            @throw [NSException exceptionWithName:@"no score exception" reason:@"player score not input from game ending" userInfo:0];
+        }
     }
-    return button;
+    return self;
 }
 
-- (void)presentGamePlayScene {
-    PBMyScene *newGamePlay = [[PBMyScene alloc]initWithSize:CGSizeMake(320, 568)];
-    newGamePlay.scaleMode = SKSceneScaleModeAspectFill;
-    [self.view presentScene:newGamePlay];
-}
-- (void)presentMainMenu {
-    PBGameStartScene *gameStartScene = [PBGameStartScene gameStartScene];
-    gameStartScene.scaleMode = SKSceneScaleModeAspectFill;
-    [self.view presentScene:gameStartScene];
+- (void)willMoveFromView:(SKView *)view {
+    [self removeAllChildren];
 }
 
-- (void)postNewHighScore {
-    [[NSNotificationCenter defaultCenter]postNotificationName:@"newHighScoreAdded" object:self.playerScore];
+#pragma mark - adding buttons and labels
+
+- (void)addHighScoreLabels {
+    //highScoreLabel
+    SKSpriteNode *highScore = [SKSpriteNode spriteNodeWithImageNamed:yourHighScoreLabelName];
+    highScore.position = CGPointMake(0.23, 0.72);
+    highScore.xScale = 0.0009;
+    highScore.yScale = 0.0009;
+    highScore.zPosition = 5;
+    [self addChild:highScore];
+    
+    //player high Score
+    SKSpriteNode *playerHighScore = [SKSpriteNode spriteNodeWithImageNamed:highestScoreLabelName];
+    playerHighScore.position = CGPointMake(0.23, 0.65);
+    playerHighScore.xScale = 0.0009;
+    playerHighScore.yScale = 0.0009;
+    playerHighScore.zPosition = 5;
+    [self addChild:playerHighScore];
 }
 
 - (void)addPlayerScoreNode {
@@ -149,4 +102,114 @@ static NSString *highestScoreLabelName = @"highscore";
     NSLog(@"player score label added");
     NSLog(@"score label location: %@" , NSStringFromCGPoint(playerScoreLabelNode.position));
 }
+
+- (void)displayHighestScore {
+    PBHighScoresScene *highScoreRef = [PBHighScoresScene highScoresScene];
+    PBHighScoreObject *obj = [highScoreRef.highScores firstObject];
+    NSInteger highestScore = obj.score;
+    SKLabelNode *highestScoreLabel = [SKLabelNode labelNodeWithFontNamed:@"Verdana"];
+    highestScoreLabel.position = CGPointMake(self.size.width/2, self.size.height/1.6);
+    highestScoreLabel.zPosition = 50;
+    highestScoreLabel.text = [NSString stringWithFormat:@" %li" , (long)highestScore];
+    highestScoreLabel.fontColor = [SKColor colorWithRed:1 green:0.15 blue:0.3 alpha:1.0];
+    highestScoreLabel.fontSize = 30;
+    highestScoreLabel.hidden = NO;
+    highestScoreLabel.xScale = 0.002;
+    highestScoreLabel.yScale = 0.002;
+    highestScoreLabel.name = @"highestScoreLabel";
+    [self addChild:highestScoreLabel];
+}
+
+#pragma mark - lazy loading
+
+- (SKSpriteNode *)highScoresButton {
+    if(!_highScoresButton) {
+        SKSpriteNode *highScores = [SKSpriteNode spriteNodeWithImageNamed:highScoresButtonName];
+        highScores.position = CGPointMake(0.5, 0.3);
+        highScores.xScale = 0.0009;
+        highScores.yScale = 0.0009;
+        highScores.zPosition = 5;
+        _highScoresButton = highScores;
+    }
+    return _highScoresButton;
+}
+
+- (SKSpriteNode *)mainMenuButton {
+    if(!_mainMenuButton) {
+        SKSpriteNode *mainMenu = [SKSpriteNode spriteNodeWithImageNamed:mainMenuButtonName];
+        mainMenu.position = CGPointMake(0.84, 0.3);
+        mainMenu.xScale = 0.0009;
+        mainMenu.yScale = 0.0009;
+        mainMenu.zPosition = 5;
+        _mainMenuButton = mainMenu;
+    }
+    return _mainMenuButton;
+}
+
+- (SKSpriteNode *)playAgainButton {
+    if(!_playAgainButton) {
+        SKSpriteNode *playAgain = [SKSpriteNode spriteNodeWithImageNamed:startGameButtonName];
+        playAgain.xScale = 0.0009;
+        playAgain.yScale = 0.0009;
+        playAgain.position = CGPointMake(0.15, 0.3);
+        playAgain.zPosition = 5;
+        _playAgainButton = playAgain;
+    }
+    return _playAgainButton;
+}
+
+#pragma mark - convenience
+
+- (void)postNewHighScore {
+    [[NSNotificationCenter defaultCenter]postNotificationName:@"newHighScoreAdded" object:self.playerScore];
+}
+
++ (SKSpriteNode *)backgroundImage {
+    SKSpriteNode *backgroundImageNode = [[SKSpriteNode alloc]initWithImageNamed:sceneBackgroundImageName];
+    backgroundImageNode.xScale = 0.001;
+    backgroundImageNode.yScale = 0.0009;
+    backgroundImageNode.name = @"backgroundImage";
+    return backgroundImageNode;
+}
+
+#pragma mark - handing contact
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    //we will present a button to the user, sense if the button has been touched. if yes...
+    UITouch *touch = [touches anyObject];
+    CGPoint touchLocation = [touch locationInNode:self];
+    
+    if ([self.playAgainButton containsPoint:touchLocation]) {
+        NSLog(@"play again touched");
+        [self presentGamePlayScene];
+    } else if([self.mainMenuButton containsPoint:touchLocation]) {
+        NSLog(@"main menu touched");
+        [self presentMainMenu];
+    } else if([self.highScoresButton containsPoint:touchLocation]) {
+        NSLog(@"high scores button touched");
+        [self presentHighScoresScene];
+    }
+}
+
+#pragma mark - presenting scenes
+
+- (void)presentGamePlayScene {
+    PBMyScene *newGamePlay = [[PBMyScene alloc]initWithSize:CGSizeMake(320, 568)];
+    newGamePlay.scaleMode = SKSceneScaleModeAspectFill;
+    [self.view presentScene:newGamePlay];
+}
+
+- (void)presentHighScoresScene {
+    PBHighScoresScene *highScoresScene = [PBHighScoresScene highScoresScene];
+    highScoresScene.scaleMode = SKSceneScaleModeAspectFill;
+    [self.view presentScene:highScoresScene];
+}
+
+- (void)presentMainMenu {
+    PBGameStartScene *gameStartScene = [PBGameStartScene gameStartScene];
+    gameStartScene.scaleMode = SKSceneScaleModeAspectFill;
+    [self.view presentScene:gameStartScene];
+}
+
+
 @end

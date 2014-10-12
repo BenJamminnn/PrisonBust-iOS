@@ -10,6 +10,10 @@
 #import "PBMyScene.h"
 #import "PBGameOverLayer.h"
 #import "PBGameStartScene.h"
+
+#import "PBFence.h"
+#import "PBMissle.h"
+
 @implementation PBViewController
 
 - (void)viewDidLoad
@@ -18,16 +22,17 @@
 
     // Configure the view.
     SKView * skView = (SKView *)self.view;
+    
+    // Show debug information.
     skView.showsFPS = YES;
+    skView.showsDrawCount = YES;
     skView.showsNodeCount = YES;
- //   skView.showsPhysics = YES;
+    skView.showsPhysics = YES;
+
     // Create and configure the scene.
     SKScene * scene = [PBGameStartScene gameStartScene];
-    //SKScene *scene = [PBGameStartScene gameStartScene];
-   // PBMyScene *sceneGame = [[PBMyScene alloc]initWithSize:skView.frame.size];
-    //PBGameOverLayer *scene = [PBGameOverLayer gameOverLayer];
+    
     scene.scaleMode = SKSceneScaleModeAspectFill;
-    // Present the scene.
     [skView presentScene:scene];
     
 }
@@ -36,6 +41,7 @@
 {
     return YES;
 }
+
 
 - (NSUInteger)supportedInterfaceOrientations
 {
@@ -46,10 +52,8 @@
     }
 }
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Release any cached data, images, etc that aren't in use.
-}
+
+
+
 
 @end

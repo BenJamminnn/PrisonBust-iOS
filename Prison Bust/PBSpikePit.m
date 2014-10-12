@@ -8,6 +8,8 @@
 
 #import "PBSpikePit.h"
 
+
+static NSArray *framesForContact = nil;
 static NSString *spikeImageName = @"spike_pit";
 @interface PBSpikePit ()
 @property (nonatomic, strong) NSMutableArray *spikePitDeathFrames;
@@ -21,7 +23,6 @@ static NSString *spikeImageName = @"spike_pit";
         self.name = spikePitIdentifier;
         self.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:CGSizeMake(170, 50)];
         self.physicsBody.categoryBitMask = enemyCategory;
-        self.physicsBody.usesPreciseCollisionDetection = YES;
         self.physicsBody.affectedByGravity = NO;
         self.physicsBody.dynamic = NO;
         self.zPosition = 3.5;
@@ -41,25 +42,38 @@ static NSString *spikeImageName = @"spike_pit";
 
 - (SKAction *)deathAnimation {
     if(!_deathDispatched) {
-        SKAction *spikePitDeathFrames = [SKAction animateWithTextures:self.spikePitDeathFrames timePerFrame:0.1 resize:YES restore:NO];
-        SKAction *deathAnimation = [SKAction sequence:@[spikePitDeathFrames , [SKAction setTexture:[self.spikePitDeathFrames lastObject]]]];
+        SKAction *playSound = [SKAction playSoundFileNamed:@"blood_splat.mp3" waitForCompletion:NO];
+        SKAction *spikePitDeathFrames = [SKAction animateWithTextures:framesForContact timePerFrame:0.1 resize:YES restore:NO];
+        SKAction *deathAnimation = [SKAction sequence:@[spikePitDeathFrames , [SKAction setTexture:[framesForContact lastObject]]]];
         _deathDispatched = YES;
-        return deathAnimation;
+        return [SKAction group:@[deathAnimation , playSound]];
     }
     return nil;
 }
 
 - (void)setUpContactFrames {
-    self.spikePitDeathFrames = [NSMutableArray array];
-    SKTextureAtlas *spikePitAtlas = [SKTextureAtlas atlasNamed:@"pitDeathFrames"];
-    for(int i = 0; i < spikePitAtlas.textureNames.count; i++) {
-        NSString *tempName = [NSString stringWithFormat:@"pit_death_%d" , i + 1];
-        SKTexture *tempTexture = [spikePitAtlas textureNamed:tempName];
-        if(tempTexture) {
-            [self.spikePitDeathFrames addObject:tempTexture];
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSMutableArray *frames = [NSMutableArray array];
+        SKTextureAtlas *spikePitAtlas = [SKTextureAtlas atlasNamed:@"pitDeathFrames"];
+        for(int i = 0; i < spikePitAtlas.textureNames.count; i++) {
+            NSString *tempName = [NSString stringWithFormat:@"pit_death_%d" , i + 1];
+            SKTexture *tempTexture = [spikePitAtlas textureNamed:tempName];
+            if(tempTexture) {
+                [frames addObject:tempTexture];
+            }
         }
-    }
+        framesForContact = frames;
+    });
 }
 
-
+- (id)copyWithZone:(NSZone *)zone {
+    PBSpikePit *newPit = [[PBSpikePit alloc]init];
+    newPit.position = CGPointMake(self.size.width + 200 + 200, 210);
+    if(newPit.parent) {
+        [newPit removeFromParent];
+        NSLog(@"possible threading issues: spikePit");
+    }
+    return newPit;
+}
 @end

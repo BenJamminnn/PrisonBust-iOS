@@ -9,34 +9,36 @@
 #import "PBPlayer.h"
 #import "PBFence.h"
 #import "PBMissle.h"
+#import "PBBomb.h"
 #import "PBSpikePit.h"
+
 static NSInteger playerMass = 50;
 static NSInteger playerZPosition = 4;
 static NSString *characterImageName = @"prison_break_character_RUN_PLACEHOLDER";
-static NSInteger timeForInvulnerability = 10;
+
+static NSArray *runningFrames = nil;
+static NSArray *jumpingFrames = nil;
+static NSArray *slidingFrames = nil;
+static NSArray *invulnerableRunFrames = nil;
+
+
 @interface PBPlayer()
 
-//basic frames
-@property (strong, nonatomic) NSMutableArray *runFrames;
-@property (strong, nonatomic) NSMutableArray *jumpFrames;
-@property (strong, nonatomic) NSMutableArray *slideFrames;
-
-//invulnerable frames
-@property (strong, nonatomic) NSMutableArray *invulnerableRunFrames;
-@property (strong, nonatomic) NSMutableArray *invulnerableJumpFrames;
-@property (strong, nonatomic) NSMutableArray *invulnerableSlideFrames;
 
 //invulnerable transformations
 @property (strong, nonatomic) NSMutableArray *regToInvulnerable;
 @property (strong, nonatomic) NSMutableArray *invulnerableToReg;
 
+//for death animations
+@property (strong, nonatomic) PBBomb *bomb;
+@property (strong, nonatomic) PBFence *fence;
+@property (strong, nonatomic) PBSpikePit *spikePit;
+@property (strong, nonatomic) PBMissle *missile;
+
 
 @end
 
-@implementation PBPlayer {
-    BOOL _isSliding;
-}
-
+@implementation PBPlayer 
 #pragma mark - lifeCycle
 
 - (instancetype)init {
@@ -53,8 +55,7 @@ static NSInteger timeForInvulnerability = 10;
     self.playerState = running;
     _deathDispatched = NO;
     
-    
-    
+    [self loadEnemies];
     
     return self;
 }
@@ -76,152 +77,147 @@ static NSInteger timeForInvulnerability = 10;
 
 - (void)powerUpPickedUp {
     if(!self.isInvulnerable) {
-        self.isInvulnerable = YES;
-        self.playerState = running;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self removeAllActions];
+            self.isInvulnerable = YES;
+            self.playerState = running;
+        });
+
     }
 }
 
 #pragma mark - setup Animations
 
 
-
-- (void)setUpRegToInvulnerable {
-    NSMutableArray *frames = [NSMutableArray array];
-    SKTextureAtlas *atlas = [SKTextureAtlas atlasNamed:@"regToInvulenerable"];
-    for(int i = 0; i < atlas.textureNames.count; i++) {
-        NSString *tempString = [NSString stringWithFormat:@"transformation_%d" , i + 1];
-        SKTexture *tempTexture = [atlas textureNamed:tempString];
-        if(tempTexture) {
-            [frames addObject:tempTexture];
-        }
-    }
-    self.regToInvulnerable = frames;
-}
-
-- (void)setUpInvulnerableToReg {
-    NSMutableArray *frames = [NSMutableArray array];
-    SKTextureAtlas *atlas = [SKTextureAtlas atlasNamed:@"regToInvulenerable"];
-    for(NSInteger i = atlas.textureNames.count; i > 0; i--) {
-        NSString *tempString = [NSString stringWithFormat:@"transformation_%ld" , (long)i];
-        SKTexture *tempTexture = [atlas textureNamed:tempString];
-        if(tempTexture) {
-            [frames addObject:tempTexture];
-        }
-    }
-    self.invulnerableToReg = frames;
-}
-
 - (void)setUpRunFrames {
     //load running frames
-    SKTextureAtlas *runningAtlas = [SKTextureAtlas atlasNamed:@"running"];
-    self.runFrames = [[NSMutableArray alloc] init];
-    for(int i = 1; i < runningAtlas.textureNames.count; i++) {
-        NSString *tempString;
-        if (i < 10) {
-            tempString = [NSString stringWithFormat:@"Run_Cycle_0%d" , i];
-        } else {
-            tempString = [NSString stringWithFormat:@"Run_Cycle_%d" , i];
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        SKTextureAtlas *runningAtlas = [SKTextureAtlas atlasNamed:@"runCycleV2"];
+        NSMutableArray *running = [[NSMutableArray alloc] init];
+        for(int i = 1; i < runningAtlas.textureNames.count; i++) {
+            NSString *tempString;
+            if (i < 10) {
+                tempString = [NSString stringWithFormat:@"Run_Cycle_0%d.png" , i];
+            } else {
+                tempString = [NSString stringWithFormat:@"Run_Cycle_%d.png" , i];
+            }
+            SKTexture *runningTemp = [runningAtlas textureNamed:tempString];
+            if(runningTemp) {
+                [running addObject:runningTemp];
+            }
         }
-        SKTexture *runningTemp = [runningAtlas textureNamed:tempString];
-        if(runningTemp) {
-            [self.runFrames addObject:runningTemp];
-        }
-    }
+        runningFrames = running;
+    });
 }
 
 - (void)setUpJumpFrames {
-    self.jumpFrames = [NSMutableArray new];
-    SKTextureAtlas *jumpAtlas = [SKTextureAtlas atlasNamed:@"jumping"];
-
-    for(int i = 0; i < jumpAtlas.textureNames.count; i++) {
-        NSString *tempName = [NSString stringWithFormat:@"jump_%d" , i];
-        SKTexture *jumpTemp = [jumpAtlas textureNamed:tempName];
-        if(jumpTemp) {
-            [self.jumpFrames addObject:jumpTemp];
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSMutableArray *jumping = [NSMutableArray new];
+        SKTextureAtlas *jumpAtlas = [SKTextureAtlas atlasNamed:@"jumpingAtlasV3"];
+        
+        for(int i = 0; i < jumpAtlas.textureNames.count; i++) {
+            NSString *tempName = [NSString stringWithFormat:@"jump_%d" , i + 1];
+            SKTexture *jumpTemp = [jumpAtlas textureNamed:tempName];
+            if(jumpTemp) {
+                [jumping addObject:jumpTemp];
+            }
         }
-    }
+        jumpingFrames = jumping;
+    });
 }
 
 - (void)setUpSlidingFrames {
-    self.slideFrames = [NSMutableArray array];
-    SKTextureAtlas *slideAtlas = [SKTextureAtlas atlasNamed:@"sliding"];
-    for(int i = 0; i < [slideAtlas.textureNames count];i++) {
-        NSString *tempName = [NSString stringWithFormat:@"slide_%d", i];
-        SKTexture *tempTexture = [slideAtlas textureNamed:tempName];
-        if(tempTexture) {
-            [self.slideFrames addObject:tempTexture];
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSMutableArray *slidingDoe = [NSMutableArray array];
+        SKTextureAtlas *slideAtlas = [SKTextureAtlas atlasNamed:@"slidingV2"];
+        for(int i = 1; i < [slideAtlas.textureNames count] + 1;i++) {
+            NSString *tempName = [NSString stringWithFormat:@"slide_%ld", (long)i];
+            SKTexture *tempTexture = [slideAtlas textureNamed:tempName];
+            if(tempTexture) {
+                [slidingDoe addObject:tempTexture];
+            }
         }
-    }
-    for(NSInteger i = [slideAtlas.textureNames count] -1; i > -1 ; i--) {
-        NSString *tempName = [NSString stringWithFormat:@"slide_%ld" , (long)i];
-        SKTexture *tempText = [slideAtlas textureNamed:tempName];
-        if(tempText) {
-            [self.slideFrames addObject:tempText];
+        for(NSInteger i = [slideAtlas.textureNames count] -1; i > 0 ; i--) {
+            NSString *tempName = [NSString stringWithFormat:@"slide_%ld" , (long)i];
+            SKTexture *tempText = [slideAtlas textureNamed:tempName];
+            if(tempText) {
+                [slidingDoe addObject:tempText];
+            }
         }
-    }
+        slidingFrames = slidingDoe;
+    });
 }
 
 - (void)setUpRunningInvulnerableAnimation {
-    self.invulnerableRunFrames = [[NSMutableArray alloc]init];
-    SKTextureAtlas *invulnerableRunAtlas = [SKTextureAtlas atlasNamed:@"runningInvulnerable"];
-    for(int i = 0; i < invulnerableRunAtlas.textureNames.count; i++) {
-        NSString *tempName = [NSString stringWithFormat:@"powerup_run_%d" , i + 1];
-        SKTexture *tempTexture = [invulnerableRunAtlas textureNamed:tempName];
-        if(tempTexture) {
-            [self.invulnerableRunFrames addObject:tempTexture];
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSMutableArray *running = [[NSMutableArray alloc]init];
+        SKTextureAtlas *invulnerableRunAtlas = [SKTextureAtlas atlasNamed:@"runningInvulnerableV2"];
+        for(int i = 1; i < invulnerableRunAtlas.textureNames.count -1; i++) {
+            NSString *tempName;
+            if(i < 10) {
+                tempName = [NSString stringWithFormat:@"powerup_run_0%d" , i];
+            } else {
+                tempName = [NSString stringWithFormat:@"powerup_run_%d" , i];
+            }
+            SKTexture *tempTexture = [invulnerableRunAtlas textureNamed:tempName];
+            if(tempTexture) {
+                [running addObject:tempTexture];
+            }
         }
-    }
+        invulnerableRunFrames = running;
+    });
 }
 
 - (void)setUpAnimations {
     [self setUpRunFrames];
     [self setUpJumpFrames];
     [self setUpSlidingFrames];
-    [self setUpInvulnerableToReg];
-    [self setUpRegToInvulnerable];
     [self setUpRunningInvulnerableAnimation];
 }
 
-
-
 #pragma mark - basic and invulnerable animations
-
 
 - (void)startRunningAnimation {
     if(![self actionForKey:@"running"]) {
-        [self runAction:[SKAction repeatActionForever:[SKAction animateWithTextures:self.runFrames timePerFrame:0.08 resize:NO restore:NO]]withKey:@"running"];
+        [self runAction:[SKAction repeatActionForever:[SKAction animateWithTextures:runningFrames timePerFrame:0.08 resize:NO restore:NO]]withKey:@"running"];
     }
 }
 
-- (void) stopRunningAnimation {
+- (void)stopRunningAnimation {
     [self removeActionForKey:@"running"];
 }
 
-- (void) startJumpingAnimations {
+- (void)startJumpingAnimations {
     if(![self actionForKey:@"jumping"]) {
-        [self runAction:[SKAction animateWithTextures:self.jumpFrames timePerFrame:0.35 resize:NO restore:NO] withKey:@"jumping"];
-    }
-}
-
-- (void) startJumpingInvulnerable {
-    if(![self actionForKey:@"jumping_invulnerable"]) {
+        [self runAction:[SKAction animateWithTextures:jumpingFrames timePerFrame:0.19 resize:YES restore:YES] withKey:@"jumping"];
         
-        [self runAction:[SKAction sequence:@[[SKAction animateWithTextures:self.invulnerableJumpFrames timePerFrame:.03 resize:YES restore:NO] , [SKAction runBlock:^{
-        }]]]withKey:@"jumping_invulnerable"];
     }
 }
 
-
-- (void) slideAnimation {
+- (void)slideAnimation {
     _isSliding = YES;
     self.physicsBody = [PBPlayer slidingPhysicsBody];
     [self slide];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.9 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.75 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self runAction:[SKAction runBlock:^{
+            if(self.isInvulnerable) {
+                return;
+            }
             if(!_deathDispatched) {
+                if(!_isSliding) {
+                    self.physicsBody = [PBPlayer physicsBodyAfterSlide];
+                    return;
+                }
                 self.physicsBody = [PBPlayer physicsBodyAfterSlide];
                 _isSliding = NO;
-                self.playerState = running;
+                if(self.playerState != running) {
+                     self.playerState = running;
+                }
+               
             }
         }]withKey:@"physicsBodyChange"];
     });
@@ -229,52 +225,42 @@ static NSInteger timeForInvulnerability = 10;
 }
 
 - (void)slide {
-    [self runAction:[SKAction animateWithTextures:self.slideFrames timePerFrame:0.15 resize:YES restore:YES] withKey:@"sliding"];
+    [self runAction:[SKAction animateWithTextures:slidingFrames timePerFrame:0.2 resize:YES restore:YES] withKey:@"sliding"];
 }
 
-- (void) stopSlidingAnimation {
+- (void)stopSlidingAnimation {
     [self removeActionForKey:@"sliding"];
 }
 
-- (void) slideInvulnerableAnimation {
-    if(![self actionForKey:@"sliding_invulnerable"]) {
-        [self runAction:[SKAction sequence:@[[SKAction animateWithTextures:self.invulnerableSlideFrames timePerFrame:.03 resize:YES restore:NO] , [SKAction runBlock:^{
-            //set animation state
-        }]]]withKey:@"sliding_invulnerable"];
-    }
-}
-
-- (void) stopInvulnerableSlideAnimation {
-
-    [self removeActionForKey:@"sliding_invulnerable"];
-    
-}
-
-- (void) startRunningInvulnerableAnimation {
+- (void)startRunningInvulnerableAnimation {
     if(![self actionForKey:@"running_invulnerable"]) {
-        self.physicsBody.allowsRotation = NO;
+        if(_isSliding) {
+            [self stopSlidingAnimation];
+            //[self removeActionForKey:@"physicsBodyChange"];
+        }
+        self.physicsBody = [PBPlayer physicsBodyInvulnerable];
         [self runAction:
             [SKAction group:@[
                         [SKAction scaleBy:2.0 duration:0.3] ,
-                        [SKAction repeatActionForever:[SKAction animateWithTextures:self.invulnerableRunFrames timePerFrame:.08 resize:NO restore:YES]]
+                        [SKAction repeatActionForever:[SKAction animateWithTextures:invulnerableRunFrames timePerFrame:.08 resize:NO restore:YES]]
                         ]]];
     }
 }
 
-
-
 - (void)InvulnerableToRegular {
-    self.physicsBody.allowsRotation = NO;
-    SKAction *invulnerableToReg = [SKAction sequence:@[
-                      [SKAction repeatAction:[self colorizeSpriteNodeWithColor:[SKColor redColor]] count:3],
-                      [SKAction scaleBy:0.5 duration:0.5] ,
-                      [SKAction repeatActionForever:[SKAction animateWithTextures:self.runFrames timePerFrame:0.08 resize:NO restore:YES]]
-                      ]];
-    [self runAction:invulnerableToReg];
-
+    if(self.isInvulnerable) {
+        self.physicsBody.allowsRotation = NO;
+        SKAction *invulnerableToReg = [SKAction sequence:@[
+                                                           [SKAction repeatAction:[self colorizeSpriteNodeWithColor:[SKColor redColor]] count:3],
+                                                           [SKAction scaleBy:0.5 duration:0.5] ,
+                                                           [SKAction repeatActionForever:[SKAction animateWithTextures:runningFrames timePerFrame:0.08 resize:NO restore:YES]]
+                                                           ]];
+        [self runAction:invulnerableToReg completion:^{
+            self.physicsBody = [PBPlayer originalPhysicsBody];
+        }];
+    }
+    
 }
-
-
 
 - (void) stopRunningInvulnerableAnimation {
     [self removeActionForKey:@"running_invulnerable"];
@@ -289,25 +275,6 @@ static NSInteger timeForInvulnerability = 10;
             case running:
                 [self startRunningInvulnerableAnimation];
                 break;
-            case jumping:
-                if(_playerState == running) {
-                    [self stopRunningInvulnerableAnimation];
-                    [self startJumpingInvulnerable];
-                    [self startRunningInvulnerableAnimation];
-                } else if(_playerState == sliding) {
-                    [self stopInvulnerableSlideAnimation];
-                    [self startJumpingInvulnerable];
-                    self.playerState = running;
-                }
-                break;
-            case sliding:
-                if(_playerState == jumping) {
-                    break;
-                } else if(_playerState == running) {
-                    [self stopRunningInvulnerableAnimation];
-                    [self slideInvulnerableAnimation];
-                }
-                break;
             default:
                 break;
         }
@@ -321,8 +288,9 @@ static NSInteger timeForInvulnerability = 10;
                 if(_playerState == running) {
                     [self stopRunningAnimation];
                     [self startJumpingAnimations];
-                    [self startRunningAnimation];
+                    self.playerState = running;
                 } else if(_playerState == sliding) {
+                    _isSliding = NO;
                     [self stopSlidingAnimation];
                     [self startJumpingAnimations];
                 }
@@ -344,10 +312,7 @@ static NSInteger timeForInvulnerability = 10;
     _playerState = playerState;
 }
 
-
 #pragma mark - reactions and other
-
-
 
 -(SKAction*)colorizeSpriteNodeWithColor:(SKColor*)color
 {
@@ -361,58 +326,46 @@ static NSInteger timeForInvulnerability = 10;
 - (void)executeDeathAnimationWithEnemy:(enemyType)enemyType {
     NSLog(@"calling player execution");
     SKAction *dyingAction;
+
     if(!_deathDispatched) {
-        if(self.isInvulnerable) {
-            if(enemyType == enemyTypeFence) {
-                
-            } else if(enemyType == enemyTypeMissle) {
-                PBMissle *missile = [PBMissle new];
-                [missile deathAnimation];
-            }
-            
-            
-        } else {
-            _deathDispatched = YES;
-            if(enemyType == enemyTypeFence) {
-                PBFence *fence = [PBFence new];
-                dyingAction = [fence deathAnimation];
-                [self runAction:dyingAction completion:^{
-                    self.hidden = YES;
-                }];
-            } else if(enemyType == enemyTypeMissle) {
-                PBMissle *missile = [PBMissle new];
+        return;
+    } else {
+        _deathDispatched = YES;
+//FENCE==================================================
+        if(enemyType == enemyTypeFence) {
+            dyingAction = [self.fence deathAnimation];
+            [self runAction:dyingAction completion:^{
+                self.hidden = YES;
+            }];
+//MISSILE==================================================
+        } else if(enemyType == enemyTypeMissle) {
+            self.playerState = dying;
+            dyingAction = [self.missile deathAnimation];
+            [self runAction:dyingAction];
+//SPIKEPIT==================================================
+        } else if(enemyType == enemyTypeSpikePit) {
+            dyingAction = [self.spikePit deathAnimation];
+            self.physicsBody = nil;
+            self.xScale = 0.3;
+            self.yScale = 0.3;
+            if(_isSliding) {
                 self.playerState = dying;
-                dyingAction = [missile deathAnimation];
-                [self runAction:dyingAction completion:^{
-                    self.hidden = YES;
+                [self runAction:[SKAction group:@[dyingAction , [self dropInSpikePitAtLocation:CGPointMake(self.position.x + 10, self.position.y + 10) WithDuration:0.3]]]completion:^{
+                    [self addBloodEmitter];
                 }];
-            } else if(enemyType == enemyTypeSpikePit) {
-                PBSpikePit *spikePit = [PBSpikePit new];
-                dyingAction = [spikePit deathAnimation];
-                self.physicsBody = nil;
-                self.xScale = 0.3;
-                self.yScale = 0.3;
-                if(_isSliding) {
-                    self.playerState = dying;
-                    [self runAction:[SKAction group:@[dyingAction , [self dropInSpikePitAtLocation:CGPointMake(self.position.x + 10, self.position.y + 10) WithDuration:0.3]]]completion:^{
-                        [self addBloodEmitter];
-                    }];
-                } else {
-                    self.playerState = dying;
-                    
-                    [self runAction:[SKAction group:@[dyingAction , [self dropInSpikePitAtLocation:self.position WithDuration:0.3]]] completion:^{
-                        [self addBloodEmitter];
-                    }];
-                }
+            } else if(_isJumping) {
+                self.playerState = dying;
+                [self runAction:[SKAction group:@[dyingAction , [self dropInSpikePitAtLocation:CGPointMake(self.position.x - 17, self.position.y) WithDuration:0.15]]]completion:^{
+                    [self addBloodEmitter];
+                }];
+            } else {
+                self.playerState = dying;
+                [self runAction:[SKAction group:@[dyingAction , [self dropInSpikePitAtLocation:self.position WithDuration:0.3]]] completion:^{
+                    [self addBloodEmitter];
+                }];
             }
         }
     }
-}
-
-+ (SKSpriteNode *)deadPlayerSpriteNode {
-    SKSpriteNode *node = [SKSpriteNode spriteNodeWithImageNamed:@"blown_up"];
-    node.zPosition = playerZPosition;
-    return node;
 }
 
 - (SKAction *)dropInSpikePitAtLocation:(CGPoint)location WithDuration:(NSTimeInterval)duration {
@@ -423,7 +376,7 @@ static NSInteger timeForInvulnerability = 10;
 }
 
 - (void)addBloodEmitter {
-    SKEmitterNode *bloodEmitter = [NSKeyedUnarchiver unarchiveObjectWithFile:[[NSBundle mainBundle]pathForResource:@"blood" ofType:@"sks"]];
+    SKEmitterNode *bloodEmitter = [self particleEmitterWithName:@"blood"];
     bloodEmitter.position = CGPointMake(10, 10);
     bloodEmitter.zPosition = self.zPosition + 1;
     bloodEmitter.name = @"bloodEmitter";
@@ -432,6 +385,15 @@ static NSInteger timeForInvulnerability = 10;
     [self addChild:bloodEmitter];
 }
 
+- (SKEmitterNode *)particleEmitterWithName:(NSString *)name {
+    NSString *path = [[NSBundle mainBundle]pathForResource:name ofType:@"sks"];
+    NSData *sceneData = [NSData dataWithContentsOfFile:path options:NSDataReadingMappedIfSafe error:nil];
+    NSKeyedUnarchiver *archiver = [[NSKeyedUnarchiver alloc]initForReadingWithData:sceneData];
+    [archiver setClass:[SKEmitterNode class] forClassName:@"SKEditorScene"];
+    id node = [archiver decodeObjectForKey:(NSKeyedArchiveRootObjectKey)];
+    [archiver finishDecoding];
+    return node;
+}
 
 #pragma mark - different physics bodies for player state
 
@@ -470,5 +432,23 @@ static NSInteger timeForInvulnerability = 10;
     return slidingBody;
 }
 
++ (SKPhysicsBody *)physicsBodyInvulnerable {
+    SKPhysicsBody *orginalBody = [SKPhysicsBody bodyWithRectangleOfSize:CGSizeMake(15, 35)];
+    orginalBody.dynamic = YES;
+    orginalBody.mass = playerMass;
+    orginalBody.contactTestBitMask = enemyCategory | powerUpCategory;
+    orginalBody.categoryBitMask = playerCategory;
+    orginalBody.collisionBitMask = groundBitMask;
+    orginalBody.allowsRotation = NO;
+    
+    return orginalBody;
+}
+
+- (void)loadEnemies {
+    self.missile = [PBMissle new];
+    self.fence = [PBFence new];
+    self.spikePit = [PBSpikePit new];
+    self.bomb = [PBBomb bomb];
+}
 
 @end

@@ -10,28 +10,40 @@
 #import "PBMyScene.h"
 #import "PBHighScoresScene.h"
 
-static NSString *backgroundImageName = @"prison_break_GAME_MAIN_clean";
-static NSString *gameStartButtonImageName = @"prison_break_start_button";
-static NSString *highScoreButtonImageName = @"prison_break_highscores";
+static NSString *backgroundImageName = @"prison_break_GAME_MAIN_v03";
+static NSString *gameStartButtonImageName = @"prison_break_start_button_v02";
+static NSString *highScoreButtonImageName = @"prison_break_highscores_v02";
 static NSString *prisonBustLabelName = @"prisonbust";
 
 @interface PBGameStartScene ()
+
 @property (strong, nonatomic) SKSpriteNode *startGameButton;
 @property (strong, nonatomic) SKSpriteNode *highScoresButton;
+
 @end
 
 @implementation PBGameStartScene
 
+#pragma mark - lifeCycle
+
+//designated initializer
++ (instancetype)gameStartScene{
+    PBGameStartScene *gameStartScene = [PBGameStartScene new];
+    SKSpriteNode *backgroundImageNode = [PBGameStartScene backgroundImage];
+    backgroundImageNode.position = CGPointMake(backgroundImageNode.size.width/2, backgroundImageNode.size.height/2 + 0.22);
+    [gameStartScene addChild:backgroundImageNode];
+    return gameStartScene;
+}
+
 - (id)init{
     if(self = [super init]) {
-        [self addButton:highScoreButtonImageName atPosition:CGPointMake(0.54,0.28) withScale:0.002];
-        [self addButton:gameStartButtonImageName atPosition:CGPointMake(0.54, 0.38) withScale:0.002];
-        [self addChild:[self addButton:prisonBustLabelName atPosition:CGPointMake(0.5, 0.7) withScale:0.002]];
-        
+        [self addChild:self.highScoresButton];
+        [self addChild:self.startGameButton];
     }
     return self;
 }
 
+#pragma mark - handling contact
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     UITouch *touch = [touches anyObject];
@@ -46,52 +58,53 @@ static NSString *prisonBustLabelName = @"prisonbust";
     }
 }
 
-+ (instancetype)gameStartScene{
-    PBGameStartScene *gameStartScene = [PBGameStartScene new];
-    SKSpriteNode *backgroundImageNode = [PBGameStartScene backgroundImage];
-    backgroundImageNode.position = CGPointMake(backgroundImageNode.size.width/2, backgroundImageNode.size.height/2 + 0.22);
-    [gameStartScene addChild:backgroundImageNode];
-    return gameStartScene;
+#pragma mark - lazy loading
+
+- (SKSpriteNode *)highScoresButton {
+    if(!_highScoresButton) {
+        SKSpriteNode *button = [SKSpriteNode spriteNodeWithImageNamed:highScoreButtonImageName];
+        button.position = CGPointMake(0.84, 0.34);
+        button.zPosition = 1;
+        button.xScale = 0.001;
+        button.yScale = 0.001;
+        _highScoresButton = button;
+    }
+    return _highScoresButton;
 }
+
+- (SKSpriteNode *)startGameButton {
+    if(!_startGameButton) {
+        SKSpriteNode *button = [SKSpriteNode spriteNodeWithImageNamed:gameStartButtonImageName];
+        button.position = CGPointMake(0.84, 0.42);
+        button.xScale = 0.001;
+        button.yScale = 0.001;
+        button.zPosition = 1;
+        _startGameButton = button;
+    }
+    return _startGameButton;
+}
+
+#pragma mark - convenience
 
 + (SKSpriteNode *)backgroundImage {
     SKSpriteNode *backgroundSpriteNode = [SKSpriteNode spriteNodeWithImageNamed:backgroundImageName];
-//    backgroundSpriteNode.anchorPoint = CGPointMake(backgroundSpriteNode.size.width/2, backgroundSpriteNode.size.height/2);
-    backgroundSpriteNode.xScale = 0.00088;
-    backgroundSpriteNode.yScale = 0.00088;
+    backgroundSpriteNode.xScale = 0.00123;
+    backgroundSpriteNode.yScale = 0.00125;
     return backgroundSpriteNode;
 }
 
-- (SKSpriteNode *)addButton:(NSString *)buttonName atPosition:(CGPoint)position withScale:(CGFloat)scale{
-    SKSpriteNode *button = [SKSpriteNode spriteNodeWithImageNamed:buttonName];
-    button.position = position;
-    button.zPosition = 10;
-    if(scale > 0) {
-        button.xScale = scale;
-        button.yScale = scale;
-    }
-    if([buttonName isEqualToString:gameStartButtonImageName]) {
-        self.startGameButton = button;
-        [self addChild:self.startGameButton];
-    } else if([buttonName isEqualToString:highScoreButtonImageName]) {
-        self.highScoresButton = button;
-        [self addChild:self.highScoresButton];
-    }
-    
-    return button;
-    
+#pragma mark - presenting scenes
+
+- (void)presentGamePlayScene {
+    PBMyScene *newGamePlay = [PBMyScene sceneWithSize:CGSizeMake(320, 568)];
+    newGamePlay.scaleMode = SKSceneScaleModeAspectFill;
+    [self.view presentScene:newGamePlay];
 }
 
 - (void)presentHighScoresScene {
     PBHighScoresScene *highScoresScene = [PBHighScoresScene highScoresScene];
     highScoresScene.scaleMode = SKSceneScaleModeAspectFill;
     [self.view presentScene:highScoresScene];
-}
-
-- (void)presentGamePlayScene {
-    PBMyScene *newGamePlay = [PBMyScene sceneWithSize:CGSizeMake(320, 568)];
-    newGamePlay.scaleMode = SKSceneScaleModeAspectFill;
-    [self.view presentScene:newGamePlay];
 }
 
 @end

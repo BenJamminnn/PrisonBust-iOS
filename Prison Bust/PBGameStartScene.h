@@ -9,8 +9,7 @@
 #import <SpriteKit/SpriteKit.h>
 #import "PBGameLayer.h"
 
-@interface PBGameStartScene : PBGameLayer
+@interface PBGameStartScene : SKScene
 
 + (instancetype)gameStartScene;
-
 @end

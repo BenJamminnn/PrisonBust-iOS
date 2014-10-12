@@ -7,12 +7,13 @@
 //
 
 #import "PBAppDelegate.h"
-
+#import "PBBackground.h"
 @implementation PBAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
+    PBBackground *bg = [PBBackground new];
     return YES;
 }
 							

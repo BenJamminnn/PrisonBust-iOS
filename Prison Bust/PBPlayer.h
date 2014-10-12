@@ -20,14 +20,14 @@ static NSString *playerName = @"player";
 @interface PBPlayer : SKSpriteNode
 @property (nonatomic) BOOL isInvulnerable;
 @property (nonatomic) BOOL deathDispatched;
-
+@property (nonatomic) BOOL isSliding;
+@property (nonatomic) BOOL isJumping;
 @property (nonatomic) PBPlayerAnimationState playerState;
 
 - (void)playerDied;
 - (void)startJumpingAnimations;
 - (void)slideAnimation;
 - (void)executeDeathAnimationWithEnemy:(enemyType)enemyType;
-+ (SKSpriteNode *)deadPlayerSpriteNode;
 - (void)powerUpPickedUp;
 - (void)InvulnerableToRegular;
 
