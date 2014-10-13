@@ -39,7 +39,7 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@" %1.0f               %@" , _score , _scoreDate];
+    return [NSString stringWithFormat:@"%1.0f               %@" , _score , _scoreDate];
 }
 
 - (NSString *)dateToString:(NSDate *)date {

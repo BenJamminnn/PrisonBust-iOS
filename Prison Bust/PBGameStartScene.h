@@ -7,7 +7,6 @@
 //
 
 #import <SpriteKit/SpriteKit.h>
-#import "PBGameLayer.h"
 
 @interface PBGameStartScene : SKScene
 

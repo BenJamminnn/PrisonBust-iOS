@@ -386,6 +386,7 @@ static NSArray *midgroundNodes = nil;
  
     } else if(contact.bodyB.categoryBitMask == playerCategory && contact.bodyA.categoryBitMask == enemyCategory) {
         NSLog(@"spritekit swtiched up the bodies on us");
+        @throw [NSException exceptionWithName:@"physicsBodyException" reason:@"" userInfo:nil];
     }
     
     //detect for player and powerup
@@ -406,8 +407,8 @@ static NSArray *midgroundNodes = nil;
 
 - (void)powerUpPickedUpWithBody:(SKPhysicsBody *)body {
     [body.node removeFromParent];
-    if(_poweredUp) {        //we are already invulnerable, restart the counter
-        [self beginInvulnerableCounter];
+    if(_poweredUp) {        //we are already invulnerable, dont do anything
+        return;
     } else {
         _poweredUp = YES;
         [self.player powerUpPickedUp];
@@ -463,6 +464,11 @@ static NSArray *midgroundNodes = nil;
 }
 
 - (void)executeSlide {
+    if(self.player.isInvulnerable) {
+        NSLog(@"SWIPE DOWN invulnerable");
+
+        return;
+    }
     NSLog(@"SWIPE DOWN");
     dispatch_sync(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
         if(self.player.isInvulnerable) {
@@ -482,7 +488,13 @@ static NSArray *midgroundNodes = nil;
 }
 
 - (void)jumpAction {
+    if(self.player.isInvulnerable) {
+        NSLog(@"SWIPE UP invulnerable");
+
+        return;
+    }
     NSLog(@"SWIPE UP");
+
     dispatch_sync(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
         if((!self.player.playerState == dying || !self.player.deathDispatched) && !_isSliding) {
             if(self.player.position.y < 230 && self.player.position.y > 225) {
@@ -799,7 +811,7 @@ static NSArray *midgroundNodes = nil;
     if(_poweredUp) {
         [_powerDown invalidate];
         [_blinkRedTimer invalidate];
-        _powerDown = [NSTimer scheduledTimerWithTimeInterval:7.0 target:self selector:@selector(powerDown) userInfo:nil repeats:NO];
+        _powerDown = [NSTimer scheduledTimerWithTimeInterval:7.5 target:self selector:@selector(powerDown) userInfo:nil repeats:NO];
         _blinkRedTimer = [NSTimer scheduledTimerWithTimeInterval:8.0 target:self selector:@selector(powerDownAnimation) userInfo:nil repeats:NO];
     } else {
         NSLog(@"calling beginInvulnerableCounter without invulnerability");

@@ -46,6 +46,7 @@
 		46765B94193EC55800EE863F /* fenceANew.atlas in Resources */ = {isa = PBXBuildFile; fileRef = 46765B93193EC55800EE863F /* fenceANew.atlas */; };
 		468927FD19E5F80800308E42 /* rocket_launcherV04.atlas in Resources */ = {isa = PBXBuildFile; fileRef = 468927FC19E5F80800308E42 /* rocket_launcherV04.atlas */; };
 		468927FF19E5F90400308E42 /* bombArtilleryV05.atlas in Resources */ = {isa = PBXBuildFile; fileRef = 468927FE19E5F90400308E42 /* bombArtilleryV05.atlas */; };
+		4689292519EB659A00308E42 /* highscores banner.png in Resources */ = {isa = PBXBuildFile; fileRef = 4689292419EB659A00308E42 /* highscores banner.png */; };
 		4692FF4D19578C4300EEB115 /* PBBomb.m in Sources */ = {isa = PBXBuildFile; fileRef = 4692FF4C19578C4300EEB115 /* PBBomb.m */; };
 		4692FFA11958B11400EEB115 /* runCycleV2.atlas in Resources */ = {isa = PBXBuildFile; fileRef = 4692FFA01958B11400EEB115 /* runCycleV2.atlas */; };
 		4692FFA5195A535E00EEB115 /* slidingV2.atlas in Resources */ = {isa = PBXBuildFile; fileRef = 4692FFA4195A535E00EEB115 /* slidingV2.atlas */; };
@@ -134,6 +135,7 @@
 		46765B93193EC55800EE863F /* fenceANew.atlas */ = {isa = PBXFileReference; lastKnownFileType = folder.skatlas; path = fenceANew.atlas; sourceTree = "<group>"; };
 		468927FC19E5F80800308E42 /* rocket_launcherV04.atlas */ = {isa = PBXFileReference; lastKnownFileType = folder.skatlas; path = rocket_launcherV04.atlas; sourceTree = "<group>"; };
 		468927FE19E5F90400308E42 /* bombArtilleryV05.atlas */ = {isa = PBXFileReference; lastKnownFileType = folder.skatlas; path = bombArtilleryV05.atlas; sourceTree = "<group>"; };
+		4689292419EB659A00308E42 /* highscores banner.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "highscores banner.png"; sourceTree = "<group>"; };
 		4692FF4B19578C4300EEB115 /* PBBomb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBBomb.h; sourceTree = "<group>"; };
 		4692FF4C19578C4300EEB115 /* PBBomb.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBBomb.m; sourceTree = "<group>"; };
 		4692FFA01958B11400EEB115 /* runCycleV2.atlas */ = {isa = PBXFileReference; lastKnownFileType = folder.skatlas; path = runCycleV2.atlas; sourceTree = "<group>"; };
@@ -241,8 +243,9 @@
 				46168FAC19E0DF5A004FA373 /* TEMP.sks */,
 				46168FAD19E0DF5A004FA373 /* spark.png */,
 				460BB2751956C3CB00969A85 /* powerUpPicPNG.png */,
-				46F9D1CB1970980A0089D34B /* sounds */,
 				463DABF51908973200658921 /* Images.xcassets */,
+				4689292419EB659A00308E42 /* highscores banner.png */,
+				46F9D1CB1970980A0089D34B /* sounds */,
 				46D4D4821912E6EF00FCC2D5 /* Scenes */,
 				466E8A0E1911BC1E0058B397 /* images */,
 				463DAC2E1909EFD500658921 /* Enemy Nodes */,
@@ -456,6 +459,7 @@
 				46F9D1CF19709AD90089D34B /* firework_rocket_launch.mp3 in Resources */,
 				468927FF19E5F90400308E42 /* bombArtilleryV05.atlas in Resources */,
 				463DAC1B1909CF9D00658921 /* Spark.sks in Resources */,
+				4689292519EB659A00308E42 /* highscores banner.png in Resources */,
 				4625226419DF4D1D00664138 /* bombFramesSmall.atlas in Resources */,
 				463DABF61908973200658921 /* Images.xcassets in Resources */,
 				463DABEC1908973200658921 /* Main.storyboard in Resources */,

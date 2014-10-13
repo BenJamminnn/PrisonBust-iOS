@@ -32,6 +32,7 @@ static NSString *highScoresBackgroundNodeName = @"prison_break_GAME_Highscores";
     if(self = [super init]) {
         [self listenForNewScore];
         [self addChild:self.mainMenu];
+        [self addHighScoreLabel];
         self.highScores = [self loadScores];
         self.highScores = [PBHighScoreObject compareHighScores:self.highScores];
         [self presentScores:self.highScores];
@@ -84,6 +85,15 @@ static NSString *highScoresBackgroundNodeName = @"prison_break_GAME_Highscores";
     [self.view presentScene:gameStartScene];
 }
 
+- (void)addHighScoreLabel{
+    SKSpriteNode *highScoreLabel = [SKSpriteNode spriteNodeWithImageNamed:@"highscores banner"];
+    highScoreLabel.position = CGPointMake(self.size.width/2, self.size.height/1.78);
+    highScoreLabel.xScale = 0.001;
+    highScoreLabel.yScale = 0.001;
+    highScoreLabel.zPosition = 10;
+    [self addChild:highScoreLabel];
+}
+
 #pragma mark - loading, unloading, and presenting scores
 
 - (void)addHighScore:(PBHighScoreObject *)highScoreObj {
@@ -101,11 +111,35 @@ static NSString *highScoresBackgroundNodeName = @"prison_break_GAME_Highscores";
     return scoreArr;
 }
 
+- (SKLabelNode *) makeDropShadowString:(NSString *) myString
+{
+    int offSetX = 3;
+    int offSetY = 3;
+    
+    SKLabelNode *completedString = [SKLabelNode labelNodeWithFontNamed:@"Verdana-Bold"];
+    completedString.fontSize = 30.0f;
+    completedString.fontColor = [SKColor whiteColor];
+    completedString.text = myString;
+    
+    
+    SKLabelNode *dropShadow = [SKLabelNode labelNodeWithFontNamed:@"Verdana-Bold"];
+    dropShadow.fontSize = 30.0f;
+    dropShadow.fontColor = [SKColor blackColor];
+    dropShadow.text = myString;
+    dropShadow.zPosition = completedString.zPosition - 1;
+    dropShadow.position = CGPointMake(dropShadow.position.x - offSetX, dropShadow.position.y - offSetY);
+    
+    [completedString addChild:dropShadow];
+    
+    return completedString;
+}
+
 - (void)presentScores:(NSMutableArray *)scoresArray {
     
     if(scoresArray.count < 6) {
         [scoresArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            SKLabelNode *scoreLabel = [SKLabelNode labelNodeWithFontNamed:@"EuphemiaUCAS-Bold"];
+            SKLabelNode *scoreLabel = [SKLabelNode labelNodeWithFontNamed:@"Verdana-Bold"];
+            scoreLabel = [self makeDropShadowString:[NSString stringWithFormat:@"%@" , obj]];
             scoreLabel.text = [NSString stringWithFormat:@"%@" , obj];
             scoreLabel.position = CGPointMake(0.5, 0.65 - (idx * .07));
             scoreLabel.xScale = 0.001;

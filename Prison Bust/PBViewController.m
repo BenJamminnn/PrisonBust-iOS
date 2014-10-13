@@ -27,7 +27,7 @@
     skView.showsFPS = YES;
     skView.showsDrawCount = YES;
     skView.showsNodeCount = YES;
-    skView.showsPhysics = YES;
+  //  skView.showsPhysics = YES;
 
     // Create and configure the scene.
     SKScene * scene = [PBGameStartScene gameStartScene];

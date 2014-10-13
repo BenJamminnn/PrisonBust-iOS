@@ -86,12 +86,37 @@ static NSString *highScoresButtonName = @"prison_break_highscores_v02";
     [self addChild:playerHighScore];
 }
 
+- (SKLabelNode *) makeDropShadowString:(NSString *) myString
+{
+    int offSetX = 3;
+    int offSetY = 3;
+    
+    SKLabelNode *completedString = [SKLabelNode labelNodeWithFontNamed:@"Verdana-Bold"];
+    completedString.fontSize = 30.0f;
+    completedString.fontColor = [SKColor yellowColor];
+    completedString.text = myString;
+    
+    
+    SKLabelNode *dropShadow = [SKLabelNode labelNodeWithFontNamed:@"Verdana-Bold"];
+    dropShadow.fontSize = 30.0f;
+    dropShadow.fontColor = [SKColor blackColor];
+    dropShadow.text = myString;
+    dropShadow.zPosition = completedString.zPosition - 1;
+    dropShadow.position = CGPointMake(dropShadow.position.x - offSetX, dropShadow.position.y - offSetY);
+    
+    [completedString addChild:dropShadow];
+    
+    return completedString;
+}
+
 - (void)addPlayerScoreNode {
-    SKLabelNode *playerScoreLabelNode = [[SKLabelNode alloc]initWithFontNamed:@"Verdana"];
-    playerScoreLabelNode.position = CGPointMake(self.size.width/2, self.size.height/1.43);
-    playerScoreLabelNode.zPosition = 50 ;
     int score = self.playerScore.score;
-    playerScoreLabelNode.text = [NSString stringWithFormat:@" %d", score];
+
+    SKLabelNode *playerScoreLabelNode = [[SKLabelNode alloc]initWithFontNamed:@"Verdana-Bold"];
+    playerScoreLabelNode = [self makeDropShadowString:[NSString stringWithFormat:@" %d" , score]];
+    playerScoreLabelNode.position = CGPointMake(self.size.width/1.9, self.size.height/1.43);
+    playerScoreLabelNode.zPosition = 50;
+    playerScoreLabelNode.text = [NSString stringWithFormat:@"   %d", score];
     playerScoreLabelNode.fontColor = [SKColor colorWithRed:1 green:0.15 blue:0.3 alpha:1.0];
     playerScoreLabelNode.fontSize = 30;
     playerScoreLabelNode.hidden = NO;
@@ -107,8 +132,9 @@ static NSString *highScoresButtonName = @"prison_break_highscores_v02";
     PBHighScoresScene *highScoreRef = [PBHighScoresScene highScoresScene];
     PBHighScoreObject *obj = [highScoreRef.highScores firstObject];
     NSInteger highestScore = obj.score;
-    SKLabelNode *highestScoreLabel = [SKLabelNode labelNodeWithFontNamed:@"Verdana"];
-    highestScoreLabel.position = CGPointMake(self.size.width/2, self.size.height/1.6);
+    SKLabelNode *highestScoreLabel = [SKLabelNode labelNodeWithFontNamed:@"Verdana-Bold"];
+    highestScoreLabel = [self makeDropShadowString:[NSString stringWithFormat:@" %li" , (long)highestScore]];
+    highestScoreLabel.position = CGPointMake(self.size.width/1.9, self.size.height/1.6);
     highestScoreLabel.zPosition = 50;
     highestScoreLabel.text = [NSString stringWithFormat:@" %li" , (long)highestScore];
     highestScoreLabel.fontColor = [SKColor colorWithRed:1 green:0.15 blue:0.3 alpha:1.0];

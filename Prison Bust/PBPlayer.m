@@ -255,9 +255,9 @@ static NSArray *invulnerableRunFrames = nil;
                                                            [SKAction scaleBy:0.5 duration:0.5] ,
                                                            [SKAction repeatActionForever:[SKAction animateWithTextures:runningFrames timePerFrame:0.08 resize:NO restore:YES]]
                                                            ]];
-        [self runAction:invulnerableToReg completion:^{
-            self.physicsBody = [PBPlayer originalPhysicsBody];
-        }];
+        [self runAction:invulnerableToReg];
+        self.physicsBody = [PBPlayer originalPhysicsBody];
+
     }
     
 }
