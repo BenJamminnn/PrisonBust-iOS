@@ -24,6 +24,7 @@ static NSString *highScoresBackgroundNodeName = @"prison_break_GAME_Highscores";
 
 @implementation PBHighScoresScene {
     SKSpriteNode *_mainMenuButton;
+    CGFloat _width;
 }
 
 #pragma mark - lifeCycle
@@ -35,6 +36,7 @@ static NSString *highScoresBackgroundNodeName = @"prison_break_GAME_Highscores";
         [self addHighScoreLabel];
         self.highScores = [self loadScores];
         self.highScores = [PBHighScoreObject compareHighScores:self.highScores];
+        _width = 0.5;
         [self presentScores:self.highScores];
     }
     return self;
@@ -135,13 +137,16 @@ static NSString *highScoresBackgroundNodeName = @"prison_break_GAME_Highscores";
 }
 
 - (void)presentScores:(NSMutableArray *)scoresArray {
-    
+
     if(scoresArray.count < 6) {
         [scoresArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             SKLabelNode *scoreLabel = [SKLabelNode labelNodeWithFontNamed:@"Verdana-Bold"];
             scoreLabel = [self makeDropShadowString:[NSString stringWithFormat:@"%@" , obj]];
             scoreLabel.text = [NSString stringWithFormat:@"%@" , obj];
-            scoreLabel.position = CGPointMake(0.5, 0.65 - (idx * .07));
+            
+            NSLog(@"%lu" , (long)_width);
+            
+            scoreLabel.position = CGPointMake(_width , self.size.height/1.6 - (idx * .07));
             scoreLabel.xScale = 0.001;
             scoreLabel.yScale = 0.001;
             scoreLabel.zPosition = 11;
@@ -176,7 +181,6 @@ static NSString *highScoresBackgroundNodeName = @"prison_break_GAME_Highscores";
     }
     return _mainMenu;
 }
-
 
 - (NSMutableArray *)highScores  {
     if (!_highScores) {

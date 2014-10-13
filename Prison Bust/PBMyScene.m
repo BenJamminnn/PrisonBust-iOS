@@ -796,9 +796,6 @@ static NSArray *midgroundNodes = nil;
 
 - (void)powerDown {
     _poweredUp = NO;
-  //  [self powerDownAnimation];
-#warning mess with power up animation. get to the bottom of the double powerdown
-    
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self changeShadowSize];
