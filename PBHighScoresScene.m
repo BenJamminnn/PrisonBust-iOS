@@ -143,9 +143,7 @@ static NSString *highScoresBackgroundNodeName = @"prison_break_GAME_Highscores";
             SKLabelNode *scoreLabel = [SKLabelNode labelNodeWithFontNamed:@"Verdana-Bold"];
             scoreLabel = [self makeDropShadowString:[NSString stringWithFormat:@"%@" , obj]];
             scoreLabel.text = [NSString stringWithFormat:@"%@" , obj];
-            
-            NSLog(@"%lu" , (long)_width);
-            
+#warning issue with high score display. find way to make position right aligned!
             scoreLabel.position = CGPointMake(_width , self.size.height/1.6 - (idx * .07));
             scoreLabel.xScale = 0.001;
             scoreLabel.yScale = 0.001;

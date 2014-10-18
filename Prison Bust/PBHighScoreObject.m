@@ -39,7 +39,15 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"%1.0f               %@" , _score , _scoreDate];
+    NSString *description = @"";
+    if(_score < 100) {
+        description = [NSString stringWithFormat:@"%1.0f                 %@" , _score , _scoreDate];
+    } else if(_score > 99 && _score < 1000) {
+        description = [NSString stringWithFormat:@"%1.0f                %@" , _score , _scoreDate];
+    } else {
+        description = [NSString stringWithFormat:@"%1.0f               %@" , _score , _scoreDate];
+    }
+    return description;
 }
 
 - (NSString *)dateToString:(NSDate *)date {
