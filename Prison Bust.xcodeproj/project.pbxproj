@@ -34,7 +34,6 @@
 		463DAC141908976400658921 /* PBBackground.m in Sources */ = {isa = PBXBuildFile; fileRef = 463DAC131908976400658921 /* PBBackground.m */; };
 		463DAC1819089ED800658921 /* PBPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 463DAC1719089ED800658921 /* PBPlayer.m */; };
 		463DAC1B1909CF9D00658921 /* Spark.sks in Resources */ = {isa = PBXBuildFile; fileRef = 463DAC191909CF9D00658921 /* Spark.sks */; };
-		463DAC1C1909CF9D00658921 /* spark.png in Resources */ = {isa = PBXBuildFile; fileRef = 463DAC1A1909CF9D00658921 /* spark.png */; };
 		463DAC1E1909D04E00658921 /* Smoke.sks in Resources */ = {isa = PBXBuildFile; fileRef = 463DAC1D1909D04E00658921 /* Smoke.sks */; };
 		463DAC211909EF9B00658921 /* PBEnemy.m in Sources */ = {isa = PBXBuildFile; fileRef = 463DAC201909EF9B00658921 /* PBEnemy.m */; };
 		463DAC241909EFAF00658921 /* PBMissle.m in Sources */ = {isa = PBXBuildFile; fileRef = 463DAC231909EFAF00658921 /* PBMissle.m */; };
@@ -118,7 +117,6 @@
 		463DAC1619089ED800658921 /* PBPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBPlayer.h; sourceTree = "<group>"; };
 		463DAC1719089ED800658921 /* PBPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBPlayer.m; sourceTree = "<group>"; };
 		463DAC191909CF9D00658921 /* Spark.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Spark.sks; sourceTree = "<group>"; };
-		463DAC1A1909CF9D00658921 /* spark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = spark.png; sourceTree = "<group>"; };
 		463DAC1D1909D04E00658921 /* Smoke.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Smoke.sks; sourceTree = "<group>"; };
 		463DAC1F1909EF9B00658921 /* PBEnemy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PBEnemy.h; sourceTree = "<group>"; };
 		463DAC201909EF9B00658921 /* PBEnemy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PBEnemy.m; sourceTree = "<group>"; };
@@ -239,7 +237,6 @@
 				463DAC191909CF9D00658921 /* Spark.sks */,
 				463DAC1D1909D04E00658921 /* Smoke.sks */,
 				469ABD6319353DA0008CDEE8 /* smokeForBodyParts.sks */,
-				463DAC1A1909CF9D00658921 /* spark.png */,
 				46168FAC19E0DF5A004FA373 /* TEMP.sks */,
 				46168FAD19E0DF5A004FA373 /* spark.png */,
 				460BB2751956C3CB00969A85 /* powerUpPicPNG.png */,
@@ -446,7 +443,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				46F78F0519CCA8CD00F92181 /* StaticTrimmedAudio.mp3 in Resources */,
-				463DAC1C1909CF9D00658921 /* spark.png in Resources */,
 				468927FD19E5F80800308E42 /* rocket_launcherV04.atlas in Resources */,
 				4698AAE219462068008922C7 /* pitDeathFrames.atlas in Resources */,
 				46A2686819E0F72400B2EEB7 /* rocketLauncher.atlas in Resources */,
@@ -608,7 +604,7 @@
 				GCC_PREFIX_HEADER = "Prison Bust/Prison Bust-Prefix.pch";
 				INFOPLIST_FILE = "Prison Bust/Prison Bust-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "EDF431FB-0BB6-40EA-9C6F-8C73B91896B6";
+				PROVISIONING_PROFILE = "";
 				SPRITEKIT_TEXTURE_ATLAS_FORMAT = RGBA4444_COMPRESSED;
 				SPRITEKIT_TEXTURE_ATLAS_OUTPUT = YES;
 				SPRITEKIT_TEXTURE_ATLAS_SIZE = 2048x2048;
@@ -717,7 +713,7 @@
 				GCC_PREFIX_HEADER = "Prison Bust/Prison Bust-Prefix.pch";
 				INFOPLIST_FILE = "Prison Bust/Prison Bust-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "EDF431FB-0BB6-40EA-9C6F-8C73B91896B6";
+				PROVISIONING_PROFILE = "";
 				SPRITEKIT_TEXTURE_ATLAS_FORMAT = RGBA4444_COMPRESSED;
 				SPRITEKIT_TEXTURE_ATLAS_OUTPUT = YES;
 				SPRITEKIT_TEXTURE_ATLAS_SIZE = 2048x2048;
@@ -736,7 +732,7 @@
 				GCC_PREFIX_HEADER = "Prison Bust/Prison Bust-Prefix.pch";
 				INFOPLIST_FILE = "Prison Bust/Prison Bust-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "EDF431FB-0BB6-40EA-9C6F-8C73B91896B6";
+				PROVISIONING_PROFILE = "";
 				SPRITEKIT_TEXTURE_ATLAS_FORMAT = RGBA4444_COMPRESSED;
 				SPRITEKIT_TEXTURE_ATLAS_OUTPUT = YES;
 				SPRITEKIT_TEXTURE_ATLAS_SIZE = 2048x2048;
