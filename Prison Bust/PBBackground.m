@@ -157,7 +157,7 @@ static SKAction *missileShooter = nil;
     SKAction *playSound = [SKAction playSoundFileNamed:@"firework_rocket_launch.mp3" waitForCompletion:NO];
     SKAction *waitAction = [SKAction waitForDuration:0.3];
     SKAction *repeatAction = [SKAction repeatAction:[SKAction sequence:@[playSound,waitAction]] count:3];
-    SKAction *animateFrames = [SKAction animateWithTextures:missileArtilleryFrames timePerFrame:0.014 resize:YES restore:NO];
+    SKAction *animateFrames = [SKAction animateWithTextures:missileArtilleryFrames timePerFrame:0.016 resize:YES restore:NO];
     return [SKAction group:@[repeatAction, animateFrames]];
 }
 

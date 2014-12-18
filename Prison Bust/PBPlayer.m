@@ -257,9 +257,7 @@ static NSArray *invulnerableRunFrames = nil;
                                                            ]];
         [self runAction:invulnerableToReg];
         self.physicsBody = [PBPlayer originalPhysicsBody];
-
     }
-    
 }
 
 - (void) stopRunningInvulnerableAnimation {

@@ -194,6 +194,13 @@ static NSArray *midgroundNodes = nil;
    >music
    >slight lag when beginning                       due to large texture atlas. BombArtillery at 2, rocketLauncher at 4
    >Bomb stop its path when player dies                 CHECK
+ 
+ //TODO
+  -bomb artillery bad quality
+  -no overlapping between bomb and enemy
+  -invulnerability til we can jump
+  -missile artillery timing
+  -MUSIC
  */
 
 
@@ -619,8 +626,9 @@ static NSArray *midgroundNodes = nil;
             firingEnabled = NO;
         }
     } else if([self.currentMidground.name isEqualToString:midgroundShooterNameMissile]) {
-        NSUInteger sizeThreshold = (self.player.isInvulnerable) ? self.size.width/2 : self.size.width/3;    //used to determine how fast the missiles should fire after creation. (faster for invulnerability)
-
+        NSUInteger sizeThreshold = (self.player.isInvulnerable) ? self.size.width/1.35 : self.size.width/5;    //used to determine how fast the missiles should fire after creation. (faster for invulnerability)
+        //the larger the divisor, the longer the waiting time before firing
+        
         if(firingEnabled && self.currentMidground.position.x < sizeThreshold) {
             [self fireWithArtilleryName:@"missileArtillery"];
           //r  [self tripleMissile];
@@ -799,7 +807,7 @@ static NSArray *midgroundNodes = nil;
         [_powerDown invalidate];
         [_blinkRedTimer invalidate];
         _powerDown = [NSTimer scheduledTimerWithTimeInterval:7.5 target:self selector:@selector(powerDown) userInfo:nil repeats:NO];
-        _blinkRedTimer = [NSTimer scheduledTimerWithTimeInterval:8.0 target:self selector:@selector(powerDownAnimation) userInfo:nil repeats:NO];
+        _blinkRedTimer = [NSTimer scheduledTimerWithTimeInterval:7.0 target:self selector:@selector(powerDownAnimation) userInfo:nil repeats:NO];
     } else {
         NSLog(@"calling beginInvulnerableCounter without invulnerability");
     }
@@ -1036,7 +1044,7 @@ static NSArray *midgroundNodes = nil;
         CGPathCloseSubpath(path);
     }
 
-    SKAction *followArc = [SKAction followPath:path asOffset:NO orientToPath:YES duration:14.0];
+    SKAction *followArc = [SKAction followPath:path asOffset:NO orientToPath:YES duration:12.0];
     [bomb runAction:followArc withKey:@"bombDrop"];
 }
 
