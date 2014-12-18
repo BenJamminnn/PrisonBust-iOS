@@ -74,11 +74,11 @@ static SKAction *missileShooter = nil;
     
     midgroundNode.name = midgroundName;
     midgroundNode.zPosition = midgroundZPosition;
+    midgroundNode.backgroundType = PBMidgroundTypeNormal;
     return midgroundNode;
     
 }
 
-//add texture and animation to this background. helper methods for texture atlas.
 + (instancetype)midgroundNodeWithBombShooter {
     
     
@@ -101,7 +101,7 @@ static SKAction *missileShooter = nil;
   //  [midgroundNodeShooter setUpBackgroundShooterAtlasBomb];
     midgroundNodeShooter.zPosition = midgroundZPosition;
     midgroundNodeShooter.name = midgroundShooterNameBomb;
-
+    midgroundNodeShooter.backgroundType = PBMidgroundTypeBomb;
     return midgroundNodeShooter;
 }
 
@@ -124,7 +124,7 @@ static SKAction *missileShooter = nil;
     [midgroundNodeShooter addChild:missileArtillery];
     midgroundNodeShooter.zPosition = midgroundZPosition;
     midgroundNodeShooter.name = midgroundShooterNameMissile;
-    
+    midgroundNodeShooter.backgroundType = PBMidgroundTypeMissile;
     return midgroundNodeShooter;
 }
 
@@ -151,7 +151,7 @@ static SKAction *missileShooter = nil;
     SKAction *playSound = [SKAction playSoundFileNamed:@"firework_rocket_launch.mp3" waitForCompletion:NO];
     SKAction *waitAction = [SKAction waitForDuration:0.3];
     SKAction *repeatAction = [SKAction repeatAction:[SKAction sequence:@[playSound,waitAction]] count:3];
-    SKAction *animateFrames = [SKAction animateWithTextures:missileArtilleryFrames timePerFrame:0.012 resize:YES restore:NO];
+    SKAction *animateFrames = [SKAction animateWithTextures:missileArtilleryFrames timePerFrame:0.014 resize:YES restore:NO];
     return [SKAction group:@[repeatAction, animateFrames]];
 }
 

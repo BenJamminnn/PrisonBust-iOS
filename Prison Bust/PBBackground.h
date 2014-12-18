@@ -14,7 +14,16 @@ static NSString *foregroundName = @"foreground";
 static NSString *midgroundShooterNameBomb = @"midgroundShooterBomb";
 static NSString *midgroundShooterNameMissile = @"midgroundShooterMissile";
 
+typedef enum {
+    PBMidgroundTypeMissile,
+    PBMidgroundTypeBomb,
+    PBMidgroundTypeNormal
+} PBMidgroundType;
+
+
 @interface PBBackground : SKSpriteNode
+
+@property (nonatomic, assign) PBMidgroundType backgroundType;
 
 + (instancetype)backgroundNode;
 + (instancetype)midgroundNode;
