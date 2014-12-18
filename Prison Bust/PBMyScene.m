@@ -591,29 +591,22 @@ static NSArray *midgroundNodes = nil;
     }];
 }
 
+- (void)enumerateOverMidgroundWithName:(NSString *)name timeInterval:(CFTimeInterval)timeSinceLast {
+    [self enumerateChildNodesWithName:name usingBlock:^(SKNode *node, BOOL *stop) {
+        node.position = CGPointMake(node.position.x - midgroundMoveSpeed + timeSinceLast, node.position.y);
+        if(node.position.x < -self.size.width - 200) {
+            [node removeFromParent];
+        }
+    }];
+}
+
 - (void)enumerateOverMidground:(CFTimeInterval)timeSinceLast {
     
     static BOOL firingEnabled = YES;
-    [self enumerateChildNodesWithName:midgroundShooterNameBomb usingBlock:^(SKNode *node, BOOL *stop) {
-        node.position = CGPointMake(node.position.x - midgroundMoveSpeed + timeSinceLast, node.position.y);
-        if(node.position.x < -self.size.width - 200) {
-            [node removeFromParent];
-        }
-    }];
     
-    [self enumerateChildNodesWithName:midgroundShooterNameMissile usingBlock:^(SKNode *node, BOOL *stop) {
-        node.position = CGPointMake(node.position.x - midgroundMoveSpeed + timeSinceLast, node.position.y);
-        if(node.position.x < -self.size.width - 200) {
-            [node removeFromParent];
-        }
-    }];
-    
-    [self enumerateChildNodesWithName:midgroundName usingBlock:^(SKNode *node, BOOL *stop) {
-        node.position = CGPointMake(node.position.x - midgroundMoveSpeed + timeSinceLast, node.position.y);
-        if(node.position.x < -self.size.width - 200) {
-            [node removeFromParent];
-        }
-    }];
+    [self enumerateOverMidgroundWithName:midgroundShooterNameBomb timeInterval:timeSinceLast];
+    [self enumerateOverMidgroundWithName:midgroundShooterNameMissile timeInterval:timeSinceLast];
+    [self enumerateOverMidgroundWithName:midgroundName timeInterval:timeSinceLast];
     
     if([self.currentMidground.name isEqualToString:midgroundShooterNameBomb]) {
         if(firingEnabled) {
@@ -662,21 +655,16 @@ static NSArray *midgroundNodes = nil;
             }
         }
 
-        
         newMidground.position = CGPointMake(self.currentMidground.position.x + self.currentMidground.size.width,self.currentMidground.position.y);
         if(!newMidground) {
             NSLog(@"midground is nil");
         } else {
-            
-            if(newMidground) {
-                [self addChild:newMidground];
-            }
+            [self addChild:newMidground];
             self.currentMidground = newMidground;
             firingEnabled = YES;
         }
     }
 }
-
 
 - (void)enumerateOverMissiles:(CFTimeInterval)timeSinceLast {
     [self enumerateChildNodesWithName:missileIdentifier usingBlock:^(SKNode *node, BOOL *stop) {
@@ -1039,7 +1027,6 @@ static NSArray *midgroundNodes = nil;
         CGPathCloseSubpath(path);
         
     } else {
-
         //slide dodge
         path = CGPathCreateMutable();
         CGPathMoveToPoint(path, NULL, bomb.position.x, bomb.position.y);
@@ -1049,7 +1036,6 @@ static NSArray *midgroundNodes = nil;
 
     SKAction *followArc = [SKAction followPath:path asOffset:NO orientToPath:YES duration:14.0];
     [bomb runAction:followArc withKey:@"bombDrop"];
-
 }
 
 - (void)tripleMissile {
