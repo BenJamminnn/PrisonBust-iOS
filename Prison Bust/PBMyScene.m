@@ -600,6 +600,11 @@ static NSArray *midgroundNodes = nil;
     }];
 }
 
+- (void)fireWithArtilleryName:(NSString *)name {
+    SKNode *child = [self.currentMidground childNodeWithName:name];
+    [child runAction:[self.currentMidground fireArtillery]];
+}
+
 - (void)enumerateOverMidground:(CFTimeInterval)timeSinceLast {
     
     static BOOL firingEnabled = YES;
@@ -610,17 +615,14 @@ static NSArray *midgroundNodes = nil;
     
     if([self.currentMidground.name isEqualToString:midgroundShooterNameBomb]) {
         if(firingEnabled) {
-            SKNode *child = [self.currentMidground childNodeWithName:@"bombArtillery"];
-            [child runAction:[self.currentMidground fireBombArtillery]];
+            [self fireWithArtilleryName:@"bombArtillery"];
             firingEnabled = NO;
         }
     } else if([self.currentMidground.name isEqualToString:midgroundShooterNameMissile]) {
-        NSUInteger sizeThreshold = (self.player.isInvulnerable) ? self.size.width/2 : self.size.width/3;
+        NSUInteger sizeThreshold = (self.player.isInvulnerable) ? self.size.width/2 : self.size.width/3;    //used to determine how fast the missiles should fire after creation. (faster for invulnerability)
 
-        
         if(firingEnabled && self.currentMidground.position.x < sizeThreshold) {
-            SKNode *child = [self.currentMidground childNodeWithName:@"missileArtillery"];
-            [child runAction:[self.currentMidground fireMissileArtillery]];
+            [self fireWithArtilleryName:@"missileArtillery"];
           //r  [self tripleMissile];
             firingEnabled = NO;
         }

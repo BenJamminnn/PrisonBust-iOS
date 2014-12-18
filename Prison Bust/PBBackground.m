@@ -139,12 +139,18 @@ static SKAction *missileShooter = nil;
     return foreground;
 }
 
-- (SKAction *)fireMissileArtillery {
-    return missileShooter;
-}
-
-- (SKAction *)fireBombArtillery {
-    return bombShooter;
+- (SKAction *)fireArtillery {
+    switch (self.backgroundType) {
+        case PBMidgroundTypeMissile:
+            return missileShooter;
+            break;
+        case PBMidgroundTypeBomb:
+            return bombShooter;
+            break;
+        default:
+            break;
+    }
+    return nil;
 }
 
 + (SKAction *)runBackgroundShooterAnimationMissile {

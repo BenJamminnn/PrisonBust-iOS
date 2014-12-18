@@ -31,6 +31,6 @@ typedef enum {
 + (instancetype)midgroundNodeWithBombShooter;
 + (instancetype)midgroundNodeWithMissileShooter;
 
-- (SKAction *)fireBombArtillery;
-- (SKAction *)fireMissileArtillery;
+- (SKAction *)fireArtillery;
+
 @end
